@@ -175,6 +175,27 @@ it('does not send any HTTP request to an unverified refresh endpoint', function 
     expect($http->getRequests())->toHaveCount(0);
 });
 
+it('logs in if the cached refresh candidate disappears or expires during lease acquisition', function (bool $deleted) {
+    $this->manager->devices($this->credentials);
+    $this->clock->timestamp += 3480;
+    $this->cloud->expiresAt = $this->clock->timestamp + 3600;
+    $this->cache->afterSet = function (string $key) use ($deleted): void {
+        if ($key === $this->lockKey) {
+            if ($deleted) {
+                unset($this->cache->values[$this->key]);
+            } else {
+                $this->cache->values[$this->key]['refresh_expires_at'] = $this->clock->timestamp;
+            }
+        }
+    };
+
+    $this->manager->devices($this->credentials);
+
+    expect($this->cloud->refreshes)->toBe(0);
+    expect($this->cloud->logins)->toBe(2);
+    expect(array_keys($this->cache->values))->toBe([$this->key]);
+})->with([true, false]);
+
 it('provides deterministic refresh success and explicit refresh failures in the shipped fake', function () {
     $fake = new FakeOukitelCloud($this->clock);
     $session = $fake->login($this->credentials);
