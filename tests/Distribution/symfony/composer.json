@@ -1,0 +1,28 @@
+{
+    "name": "sdk-distribution/symfony-smoke",
+    "description": "Isolated distribution check with Symfony and explicit PSR-17 implementation.",
+    "license": "PolyForm-Noncommercial-1.0.0",
+    "require": {
+        "php": "^8.4.1",
+        "ivanvasechko/oukitel-php-sdk": "*",
+        "symfony/http-client": "^8.1",
+        "nyholm/psr7": "^1.8"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "sdk",
+            "options": {
+                "symlink": false,
+                "versions": {
+                    "ivanvasechko/oukitel-php-sdk": "0.1.0"
+                }
+            }
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    }
+}

@@ -28,15 +28,42 @@ jobs:
       - run: composer validate --strict
       - run: composer pint -- --test
       - run: composer phpstan
-      - name: Tests (coverage gate activates with production source)
-        shell: bash
-        run: |
-          if find src -name '*.php' -print -quit 2>/dev/null | grep -q .; then
-            composer test-coverage
-          else
-            composer test
-          fi
+      - run: composer test-coverage
       - run: composer audit
+  distribution:
+    name: Distribution / ${{ matrix.backend }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.2'
+            backend: guzzle
+          - php: '8.5'
+            backend: guzzle
+          - php: '8.5'
+            backend: symfony
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+      - name: Build and extract distribution
+        env:
+          BACKEND: ${{ matrix.backend }}
+        run: |
+          mkdir -p /tmp/oukitel-consumer/sdk
+          composer archive --format=tar --dir=/tmp/oukitel-consumer --file=sdk --no-interaction
+          tar -xf /tmp/oukitel-consumer/sdk.tar -C /tmp/oukitel-consumer/sdk
+          cp "tests/Distribution/$BACKEND/composer.json" "tests/Distribution/$BACKEND/smoke.php" /tmp/oukitel-consumer/
+      - run: composer install --no-interaction --prefer-dist
+        working-directory: /tmp/oukitel-consumer
+      - run: php smoke.php
+        working-directory: /tmp/oukitel-consumer
+      - run: composer audit
+        working-directory: /tmp/oukitel-consumer
   secrets:
     name: Secret scan
     runs-on: ubuntu-latest
@@ -50,11 +77,12 @@ jobs:
   quality:
     name: Quality gate
     if: always()
-    needs: [php, secrets]
+    needs: [php, distribution, secrets]
     runs-on: ubuntu-latest
     steps:
       - name: Require all checks
         env:
           PHP_RESULT: ${{ needs.php.result }}
           SECRET_RESULT: ${{ needs.secrets.result }}
-        run: test "$PHP_RESULT" = success && test "$SECRET_RESULT" = success
+          DISTRIBUTION_RESULT: ${{ needs.distribution.result }}
+        run: test "$PHP_RESULT" = success && test "$SECRET_RESULT" = success && test "$DISTRIBUTION_RESULT" = success

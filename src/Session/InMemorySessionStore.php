@@ -22,7 +22,7 @@ final class InMemorySessionStore implements SessionStore
 
     public function get(string $key): ?Session
     {
-        if (($this->sessions[$key]['expiresAt'] ?? 0) <= $this->clock->now()->getTimestamp()) {
+        if (! isset($this->sessions[$key]) || $this->sessions[$key]['expiresAt'] <= $this->clock->now()->getTimestamp()) {
             unset($this->sessions[$key]);
 
             return null;
@@ -48,7 +48,7 @@ final class InMemorySessionStore implements SessionStore
 
     public function isCoolingDown(string $key): bool
     {
-        if (($this->cooldowns[$key] ?? 0) <= $this->clock->now()->getTimestamp()) {
+        if (! isset($this->cooldowns[$key]) || $this->cooldowns[$key] <= $this->clock->now()->getTimestamp()) {
             unset($this->cooldowns[$key]);
 
             return false;

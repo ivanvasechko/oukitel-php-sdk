@@ -223,3 +223,9 @@ it('keeps default memory stores isolated and expires sessions at the exact TTL b
     $one->delete('example-key');
     expect($one->isCoolingDown('example-key'))->toBeFalse();
 });
+
+it('treats absent memory entries as misses even before the Unix epoch', function (): void {
+    $store = new InMemorySessionStore(new FrozenClock(-100));
+    expect($store->get('example-key'))->toBeNull()
+        ->and($store->isCoolingDown('example-key'))->toBeFalse();
+});

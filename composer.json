@@ -1,6 +1,6 @@
 {
   "name": "ivanvasechko/oukitel-php-sdk",
-  "description": "Unofficial framework-agnostic Oukitel power-station SDK (bootstrap; no protocol implementation yet).",
+  "description": "Unofficial framework-agnostic Oukitel power-station SDK with typed telemetry and portable PSR integrations.",
   "type": "library",
   "license": "PolyForm-Noncommercial-1.0.0",
   "authors": [

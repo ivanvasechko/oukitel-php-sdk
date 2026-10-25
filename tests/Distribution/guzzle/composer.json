@@ -1,7 +1,7 @@
 {
     "name": "sdk-distribution/guzzle-smoke",
     "description": "Isolated distribution check with Guzzle as the only explicit HTTP implementation.",
-    "license": "MIT",
+    "license": "PolyForm-Noncommercial-1.0.0",
     "require": {
         "php": "^8.2",
         "ivanvasechko/oukitel-php-sdk": "*",
