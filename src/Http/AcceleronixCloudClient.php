@@ -7,6 +7,7 @@ namespace IvanVasechko\Oukitel\Http;
 use Closure;
 use IvanVasechko\Oukitel\Config\ClientOptions;
 use IvanVasechko\Oukitel\Config\RegionConfiguration;
+use IvanVasechko\Oukitel\Contracts\ControlCloud;
 use IvanVasechko\Oukitel\Contracts\OukitelCloud;
 use IvanVasechko\Oukitel\Contracts\RandomStringGenerator;
 use IvanVasechko\Oukitel\Crypto\LoginSignature;
@@ -21,6 +22,7 @@ use IvanVasechko\Oukitel\Exceptions\ApiError;
 use IvanVasechko\Oukitel\Exceptions\ConfigurationMissing;
 use IvanVasechko\Oukitel\Exceptions\RefreshUnavailable;
 use IvanVasechko\Oukitel\Exceptions\TransportFailed;
+use IvanVasechko\Oukitel\Parsing\ControlValueParser;
 use IvanVasechko\Oukitel\Parsing\ResponseParser;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -31,7 +33,7 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 use SensitiveParameter;
 
-final class AcceleronixCloudClient implements OukitelCloud
+final class AcceleronixCloudClient implements ControlCloud, OukitelCloud
 {
     private readonly RetryingHttpClient $retrying;
 
@@ -97,13 +99,29 @@ final class AcceleronixCloudClient implements OukitelCloud
 
     public function wake(#[SensitiveParameter] Session $session, #[SensitiveParameter] DeviceId $device): void
     {
+        $this->batchControl($session, $device, ['high_frequency_reporting' => 3], 'wake');
+    }
+
+    /**
+     * @experimental Internal transport; prefer Account::controls().
+     *
+     * @param  array<string, mixed>  $commands
+     */
+    public function control(#[SensitiveParameter] Session $session, #[SensitiveParameter] DeviceId $device, #[SensitiveParameter] array $commands): void
+    {
+        $this->batchControl($session, $device, ControlValueParser::commands($commands, true), 'control');
+    }
+
+    /** @param array<string, mixed> $commands */
+    private function batchControl(#[SensitiveParameter] Session $session, #[SensitiveParameter] DeviceId $device, #[SensitiveParameter] array $commands, string $operation): void
+    {
         $body = json_encode([
-            'data' => '[{"high_frequency_reporting":3}]',
+            'data' => json_encode([$commands], JSON_THROW_ON_ERROR),
             'deviceList' => [['deviceKey' => $device->deviceKey, 'productKey' => $device->productKey]],
             'cacheTime' => 60, 'isCache' => 1, 'isCover' => 1, 'dataFormat' => 0, 'type' => 2,
         ], JSON_THROW_ON_ERROR);
         $this->parser->assertSuccessful($this->request($session->region, 'POST',
-            '/v2/binding/enduserapi/batchControlDevice', 'wake', $body, 'application/json', $session->accessToken, false), 'wake');
+            '/v2/binding/enduserapi/batchControlDevice', $operation, $body, 'application/json', $session->accessToken, false), $operation);
     }
 
     private function attributes(#[SensitiveParameter] Session $session, #[SensitiveParameter] DeviceId $device): mixed
