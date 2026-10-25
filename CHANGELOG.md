@@ -5,7 +5,8 @@ Semantic Versioning.
 
 ## [Unreleased]
 
-Intended next release: **0.1.0**. No release tag or publication is created here.
+Development API includes core and experimental controls. No release tag or
+publication is created here.
 
 ### Added
 
@@ -20,6 +21,12 @@ Intended next release: **0.1.0**. No release tag or publication is created here.
   17 independently authored synthetic protocol examples and offline testing helpers.
 - Maximum-level static analysis, 90% coverage gate and archive-installed
   Guzzle/Symfony compatibility checks.
+- Optional refresh expiry with legacy session/cache compatibility, opt-in refresh
+  orchestration, auth-only login fallback and best-effort owned refresh leases.
+- Separate experimental control API, strict JSON bool/int validation, P2001
+  charging range, explicit unsafe code opt-in and value-free notice logging.
+- At-most-once control sending, fresh-timestamp confirmation with injectable
+  clock/delay and inferred readable/controllable device capabilities.
 
 ### Changed
 
@@ -31,7 +38,21 @@ Intended next release: **0.1.0**. No release tag or publication is created here.
 - Scoped the secret-scan false-positive exception to the public deterministic
   nonce in the two crypto-vector tests; other values and paths remain scanned.
 
+### Integration notes
+
+- Custom clouds must implement `refresh()`; custom session stores must implement
+  refresh lease acquisition and owner-checked release. Constructor additions are
+  optional and old cached sessions remain readable.
+- Device writes are an optional, separate `ControlCloud` capability. Existing
+  read/wake expiry replay remains unchanged; experimental controls never replay.
+- Development documentation is excluded from distribution archives.
+
 ### Limitations
 
 - Regional availability and device-model compatibility are not guaranteed.
-- No refresh-token flow, general device controls, tagging or publication.
+- Refresh remains disabled by default: no usable vendor endpoint was confirmed.
+  The bundled transport explicitly refuses refresh without sending a request.
+- PSR-16 refresh leases cannot guarantee atomic exclusion.
+- The charging-limit policy is not a model-support guarantee. Cloud confirmation
+  is not proof of physical output state.
+- No scheduling, LAN protocol, tagging or publication.
