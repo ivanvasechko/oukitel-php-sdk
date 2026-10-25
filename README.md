@@ -192,6 +192,8 @@ composer audit
 This library intentionally does not commit `composer.lock`. Consumers use their
 application lockfile; CI resolves both the lowest and latest supported dependency
 versions. Run `composer update` to refresh the local development lockfile.
+Development-only HTTP tooling has maintained version floors so lowest-resolution
+checks do not install the abandoned message factory.
 
 PHPStan checks production source at maximum level. CI tests PHP 8.2-8.5 with both
 lowest and latest compatible dependencies, enforces 90% coverage, audits resolved

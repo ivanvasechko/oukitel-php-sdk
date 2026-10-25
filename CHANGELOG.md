@@ -26,6 +26,10 @@ Intended next release: **0.1.0**. No release tag or publication is created here.
 - Made package documentation self-contained.
 - Allowed Pest 5 on compatible PHP versions while retaining PHP 8.2 support.
 - Excluded local development dependencies and ignored lockfiles from archives.
+- Required maintained development HTTP tooling in lowest-resolution
+  checks, without suppressing abandoned-package audits.
+- Scoped the secret-scan false-positive exception to the public deterministic
+  nonce in the two crypto-vector tests; other values and paths remain scanned.
 
 ### Limitations
 
