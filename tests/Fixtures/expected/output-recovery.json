@@ -1,0 +1,11 @@
+{
+  "batteryPercent": 100,
+  "totalOutputW": 0,
+  "acOutputW": 0,
+  "totalInputW": 0,
+  "acInputW": 0,
+  "acOutputEnabled": true,
+  "temperatureC": 17,
+  "isOnline": null,
+  "wifiSignalDbm": -61
+}

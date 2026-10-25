@@ -1,0 +1,29 @@
+{
+  "isOnline": null,
+  "wifiSignalDbm": -60,
+  "batteryPercent": 100,
+  "remainingDischargeMinutes": null,
+  "remainingChargeMinutes": null,
+  "totalInputW": 0,
+  "totalOutputW": 0,
+  "acInputW": 0,
+  "dcInputW": 0,
+  "temperatureC": 38,
+  "inverterTemperatureC": null,
+  "acChargingLimitPercent": 100,
+  "acOutputEnabled": false,
+  "acOutputW": 0,
+  "acOutputV": null,
+  "dcOutputW": 0,
+  "usbOutputW": 0,
+  "typeCOutputW": 0,
+  "extra": {
+    "ACvoltage_Switchover": "230",
+    "usb_switch": false,
+    "high_frequency_reporting": "0",
+    "dc_switch": false,
+    "Frequency_Switchover": "0",
+    "AC_Version": 106,
+    "BMS_Version": 215
+  }
+}
