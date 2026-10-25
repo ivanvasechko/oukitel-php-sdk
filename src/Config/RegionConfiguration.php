@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace IvanVasechko\Oukitel\Config;
 
+use IvanVasechko\Oukitel\Enums\Region;
 use IvanVasechko\Oukitel\Exceptions\ConfigurationMissing;
 
 final readonly class RegionConfiguration
 {
+    public static function preset(Region $region): self
+    {
+        return RegionPreset::for($region);
+    }
+
     public function __construct(
         public string $baseUrl,
         public string $appId,
