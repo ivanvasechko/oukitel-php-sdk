@@ -31,11 +31,29 @@ it('keeps production code framework-independent with mixed guards at parsing bou
     expect($count)->toBeGreaterThan(0);
 });
 
-it('ships only canonical protocol fixture envelopes without observation histories', function (): void {
+it('ships only synthetic fixture envelopes with minimal example metadata', function (): void {
+    $codes = [
+        'battery_percentage', 'remain_time', 'remain_charging_time', 'total_input_power',
+        'total_output_power', 'ac_input', 'dc_input', 'temp', 'inverter_temp', 'ac_switch',
+        'AC_Info', 'DC_Info', 'USB_Info', 'TypeC_Info', 'ac_data', 'dc_data', 'usb_data',
+        'typec_data', 'usb_switch', 'dc_switch', 'high_frequency_reporting', 'ac_charging_limit',
+    ];
     foreach (glob(dirname(__DIR__).'/src/Testing/Fixtures/*.json') as $path) {
         $fixture = json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
         expect(array_keys($fixture))->toBe(['code', 'data'])
             ->and($fixture['code'])->toBe(200)
             ->and(array_keys($fixture['data']))->toBe(['deviceData', 'customizeTslInfo']);
+        expect(array_keys($fixture['data']['deviceData']))->toBe(['isOnline', 'signalStrength']);
+        foreach ($fixture['data']['customizeTslInfo'] as $attribute) {
+            expect(array_keys($attribute))->toBe(['resourceCode', 'resourceValce', 'dataType']);
+            expect(in_array($attribute['resourceCode'], $codes, true))->toBeTrue();
+        }
     }
+});
+
+it('excludes development documentation from archives and keeps validation records out of source', function () {
+    $root = dirname(__DIR__);
+
+    expect(file_get_contents($root.'/.gitattributes'))->toContain('/docs export-ignore');
+    expect(glob($root.'/docs/validation/*'))->toBe([]);
 });

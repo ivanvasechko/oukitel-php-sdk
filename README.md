@@ -104,9 +104,8 @@ A rejected login raises `AuthenticationFailed`; later attempts during cooldown
 raise `LoginCoolingDown`. `verify()` bypasses both cached sessions and cooldown,
 without populating or clearing them. Setting the cooldown to zero disables it.
 
-EU, US and CN presets contain public app-level constants provided on 2026-10-25.
-**All three remain unverified against a live account.** These are not account
-credentials, and their continued validity is not guaranteed. Override any field
+EU, US and CN presets contain public app-level constants, not account
+credentials. Regional availability and continued validity are not guaranteed. Override any field
 immutably, for example:
 
 ```php
@@ -141,10 +140,10 @@ $wakes = $fake->wakes();
 $snapshot = FixtureLoader::telemetry('offline');
 ```
 
-`FixtureLoader::SCENARIOS` lists 17 allowlisted synthetic/reconstructed protocol
-scenarios. They preserve available sanitized readings, not captured HTTP dumps,
-complete observation histories or guaranteed live-device state. Missing metadata
-is not fabricated. Fixtures use the production parser; traversal names are rejected.
+`FixtureLoader::SCENARIOS` lists 17 allowlisted, independently authored synthetic
+protocol examples. All example values are invented. They illustrate parsing
+behavior rather than real device state.
+Fixtures use the production parser; traversal names are rejected.
 
 The fake accepts `Telemetry|string` in `withTelemetry()`, explicit unconverted
 attributes in `withRawAttributes()`, and a throwable in `failLoginWith()`.
@@ -166,7 +165,7 @@ rights the author can grant.
 Thanks to [VictorCV-DAM/ha-oukitel](https://github.com/VictorCV-DAM/ha-oukitel)
 for protocol research. No code from that project is included in this SDK.
 Its GPL licence does not automatically settle rights in vendor-owned material.
-Bundled presets use operator-reviewed public app constants; no third-party
+Bundled presets use public app constants; no third-party
 protocol implementation code is included.
 
 ## Rights-holder concerns

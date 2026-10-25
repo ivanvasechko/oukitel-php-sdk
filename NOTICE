@@ -16,5 +16,5 @@ https://github.com/VictorCV-DAM/ha-oukitel (GPL-3.0).
 No code from that project is included in this SDK.
 
 Bundled region presets contain reviewed public app-level identifiers and
-protocol signing constants provided on 2026-10-25. They are not account
-credentials. All regions remain unverified against a live account.
+protocol signing constants. They are not account credentials. Regional
+availability and compatibility are not guaranteed.

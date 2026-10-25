@@ -1,9 +1,9 @@
 {
-  "totalInputW": 71,
-  "totalOutputW": 71,
-  "acInputW": 0,
-  "acOutputEnabled": true,
-  "acOutputW": 71,
-  "isOnline": null,
-  "wifiSignalDbm": -67
+  "batteryPercent": null,
+  "isOnline": true,
+  "wifiSignalDbm": null,
+  "acChargingLimitPercent": 65,
+  "acOutputEnabled": false,
+  "totalInputW": null,
+  "totalOutputW": null
 }

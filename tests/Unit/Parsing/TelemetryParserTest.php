@@ -16,7 +16,7 @@ it('accepts zero-padded integer fields without accepting integer overflow', func
         ->toThrow(MalformedResponse::class);
 });
 
-it('preserves the audited telemetry scenarios with explicit outlet alias corrections', function (string $name): void {
+it('parses independently authored synthetic telemetry examples and outlet aliases', function (string $name): void {
     $root = dirname(__DIR__, 3);
     $parser = new ResponseParser;
     $payload = $parser->decode(file_get_contents($root.'/src/Testing/Fixtures/'.$name.'.json'));

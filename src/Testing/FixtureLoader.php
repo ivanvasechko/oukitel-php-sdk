@@ -10,6 +10,7 @@ use IvanVasechko\Oukitel\DTOs\TslAttribute;
 use IvanVasechko\Oukitel\Parsing\ResponseParser;
 use RuntimeException;
 
+/** Bundled examples contain invented data, not service captures. */
 final class FixtureLoader
 {
     public const SCENARIOS = [

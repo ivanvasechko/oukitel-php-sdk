@@ -41,7 +41,7 @@ if ($fake->wakes() !== [$device]) {
     throw new RuntimeException('Archive-installed fake cloud did not record wake.');
 }
 $installed = __DIR__.'/vendor/ivanvasechko/oukitel-php-sdk';
-foreach (['tests', 'vendor', '.github', '.git', '.gitleaks.toml', 'composer.lock', 'phpstan.neon', 'phpunit.xml'] as $excluded) {
+foreach (['docs', 'tests', 'vendor', '.github', '.git', '.gitleaks.toml', 'composer.lock', 'phpstan.neon', 'phpunit.xml'] as $excluded) {
     if (file_exists($installed.'/'.$excluded)) {
         throw new RuntimeException('Development files leaked into the distribution.');
     }

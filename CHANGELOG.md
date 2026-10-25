@@ -17,7 +17,7 @@ Intended next release: **0.1.0**. No release tag or publication is created here.
 - Bounded login/read transport retries, one-time explicit-expiry reauthentication,
   session caching, login cooldowns and sanitized error handling.
 - Recursive redaction, outlet STRUCT aliases, presence/timestamp diagnostics,
-  17 reconstructed protocol scenarios and shipped offline testing helpers.
+  17 independently authored synthetic protocol examples and offline testing helpers.
 - Maximum-level static analysis, 90% coverage gate and archive-installed
   Guzzle/Symfony compatibility checks.
 
@@ -33,5 +33,5 @@ Intended next release: **0.1.0**. No release tag or publication is created here.
 
 ### Limitations
 
-- Region constants are public reviewed inputs, not live-verified presets.
+- Regional availability and device-model compatibility are not guaranteed.
 - No refresh-token flow, general device controls, tagging or publication.
