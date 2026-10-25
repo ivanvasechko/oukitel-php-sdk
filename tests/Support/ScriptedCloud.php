@@ -19,6 +19,14 @@ final class ScriptedCloud implements OukitelCloud
 
     public int $expiries = 0;
 
+    public int $refreshes = 0;
+
+    public ?int $refreshExpiresAt = null;
+
+    public ?Session $refreshSession = null;
+
+    public ?OukitelException $refreshFailure = null;
+
     public int $expiresAt = 1_800_003_600;
 
     public ?Region $loginRegion = null;
@@ -40,7 +48,19 @@ final class ScriptedCloud implements OukitelCloud
             throw $this->loginFailure;
         }
 
-        return new Session($this->loginRegion ?? $credentials->region, 'example-token-'.$this->logins, 'example-refresh', $this->expiresAt);
+        return new Session($this->loginRegion ?? $credentials->region, 'example-token-'.$this->logins,
+            'example-refresh', $this->expiresAt, $this->refreshExpiresAt);
+    }
+
+    public function refresh(Session $session): Session
+    {
+        $this->refreshes++;
+        if ($this->refreshFailure !== null) {
+            throw $this->refreshFailure;
+        }
+
+        return $this->refreshSession ?? new Session($session->region, 'example-refreshed-'.$this->refreshes,
+            'example-rotated-refresh', 1_800_007_200, $session->refreshExpiresAt);
     }
 
     public function devices(Session $session): array

@@ -44,7 +44,8 @@ final class ResponseParser
             throw new MalformedResponse('data.accessToken');
         }
 
-        return new Session($region, $token, $refreshToken, $expiresAt);
+        return new Session($region, $token, $refreshToken, $expiresAt,
+            Values::integer($refresh['expirationTime'] ?? null, 'data.refreshToken.expirationTime'));
     }
 
     /** @return list<Device> */

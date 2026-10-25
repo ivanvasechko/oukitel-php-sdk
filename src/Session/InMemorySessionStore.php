@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace IvanVasechko\Oukitel\Session;
 
+use InvalidArgumentException;
 use IvanVasechko\Oukitel\Clock\SystemClock;
 use IvanVasechko\Oukitel\Contracts\SessionStore;
 use IvanVasechko\Oukitel\DTOs\Session;
@@ -17,6 +18,9 @@ final class InMemorySessionStore implements SessionStore
 
     /** @var array<string, int> */
     private array $cooldowns = [];
+
+    /** @var array<string, array{owner: string, expiresAt: int}> */
+    private array $refreshLocks = [];
 
     public function __construct(private readonly ClockInterface $clock = new SystemClock) {}
 
@@ -65,5 +69,27 @@ final class InMemorySessionStore implements SessionStore
             return;
         }
         $this->cooldowns[$key] = $this->clock->now()->getTimestamp() + $ttl;
+    }
+
+    public function acquireRefreshLock(string $key, int $ttl): ?string
+    {
+        if ($ttl < 1) {
+            throw new InvalidArgumentException('Refresh lock TTL must be positive.');
+        }
+        $now = $this->clock->now()->getTimestamp();
+        if (isset($this->refreshLocks[$key]) && $this->refreshLocks[$key]['expiresAt'] > $now) {
+            return null;
+        }
+        $owner = bin2hex(random_bytes(16));
+        $this->refreshLocks[$key] = ['owner' => $owner, 'expiresAt' => $now + $ttl];
+
+        return $owner;
+    }
+
+    public function releaseRefreshLock(string $key, string $owner): void
+    {
+        if (($this->refreshLocks[$key]['owner'] ?? null) === $owner) {
+            unset($this->refreshLocks[$key]);
+        }
     }
 }

@@ -9,6 +9,7 @@ use IvanVasechko\Oukitel\Config\ClientOptions;
 use IvanVasechko\Oukitel\DTOs\Credentials;
 use IvanVasechko\Oukitel\DTOs\DeviceId;
 use IvanVasechko\Oukitel\Enums\Region;
+use IvanVasechko\Oukitel\Enums\TslCode;
 use IvanVasechko\Oukitel\Http\HttpClientFactory;
 use IvanVasechko\Oukitel\OukitelClient;
 use IvanVasechko\Oukitel\Testing\FakeOukitelCloud;
@@ -40,10 +41,22 @@ $account->wake($device);
 if ($fake->wakes() !== [$device]) {
     throw new RuntimeException('Archive-installed fake cloud did not record wake.');
 }
+$account->controls()->setUsbOutput($device, true);
+$account->controls()->setAcChargingLimit($device, 50);
+if ($fake->commands() !== [
+    ['device' => $device, 'commands' => ['usb_switch' => true]],
+    ['device' => $device, 'commands' => ['ac_charging_limit' => 50]],
+] || ! $account->capabilities($device)->canControl(TslCode::UsbSwitch)) {
+    throw new RuntimeException('Archive-installed controls or capabilities did not preserve their contract.');
+}
+$fake->refresh($fake->login(new Credentials(Region::Eu, 'example@example.test', 'example-password')));
+if ($fake->refreshCount() !== 1) {
+    throw new RuntimeException('Archive-installed fake refresh did not record the operation.');
+}
 $installed = __DIR__.'/vendor/ivanvasechko/oukitel-php-sdk';
-foreach (['tests', 'vendor', '.github', '.git', '.gitleaks.toml', 'composer.lock', 'phpstan.neon', 'phpunit.xml'] as $excluded) {
+foreach (['docs', 'tests', 'vendor', '.github', '.git', '.gitleaks.toml', 'composer.lock', 'phpstan.neon', 'phpunit.xml'] as $excluded) {
     if (file_exists($installed.'/'.$excluded)) {
         throw new RuntimeException('Development files leaked into the distribution.');
     }
 }
-echo "All 17 bundled scenarios and fake account operations work from the distribution.\n";
+echo "All 17 scenarios, refresh, controls and capabilities work from the distribution.\n";

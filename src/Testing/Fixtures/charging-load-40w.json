@@ -2,38 +2,38 @@
   "code": 200,
   "data": {
     "deviceData": {
-      "isOnline": null,
-      "signalStrength": -63
+      "isOnline": true,
+      "signalStrength": -42
     },
     "customizeTslInfo": [
       {
         "resourceCode": "battery_percentage",
-        "resourceValce": 97,
+        "resourceValce": 46,
         "dataType": "INT"
       },
       {
         "resourceCode": "remain_time",
-        "resourceValce": 3420,
+        "resourceValce": 5940,
         "dataType": "INT"
       },
       {
         "resourceCode": "remain_charging_time",
-        "resourceValce": 3420,
+        "resourceValce": 90,
         "dataType": "INT"
       },
       {
         "resourceCode": "total_input_power",
-        "resourceValce": 37,
+        "resourceValce": 160,
         "dataType": "INT"
       },
       {
         "resourceCode": "total_output_power",
-        "resourceValce": 37,
+        "resourceValce": 40,
         "dataType": "INT"
       },
       {
         "resourceCode": "ac_input",
-        "resourceValce": 0,
+        "resourceValce": 160,
         "dataType": "INT"
       },
       {
@@ -42,14 +42,50 @@
         "dataType": "INT"
       },
       {
+        "resourceCode": "temp",
+        "resourceValce": 25,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "inverter_temp",
+        "resourceValce": "30.5",
+        "dataType": "FLOAT"
+      },
+      {
         "resourceCode": "ac_switch",
         "resourceValce": true,
         "dataType": "BOOL"
       },
       {
-        "resourceCode": "ac_output_power",
-        "resourceValce": 37,
-        "dataType": "INT"
+        "resourceCode": "ac_data",
+        "resourceValce": {
+          "ac1_output": "40",
+          "ac1_output_voltage": "230"
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "dc_data",
+        "resourceValce": {
+          "car1_output": "0"
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "usb_data",
+        "resourceValce": {
+          "USB_QC1_output": "0",
+          "USB_QC2_output": "0"
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "typec_data",
+        "resourceValce": {
+          "Typec1_output": "0",
+          "Typec2_output": "0"
+        },
+        "dataType": "STRUCT"
       }
     ]
   }

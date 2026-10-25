@@ -21,13 +21,14 @@ final class CacheValueParser
         $access = $data['access_token'] ?? null;
         $refresh = $data['refresh_token'] ?? null;
         $expiry = $data['expires_at'] ?? null;
+        $refreshExpiry = $data['refresh_expires_at'] ?? null;
         if (! is_string($region) || ($parsedRegion = Region::tryFrom($region)) === null
             || ! is_string($access) || $access === '' || ! is_string($refresh) || $refresh === ''
-            || ! is_int($expiry)) {
+            || ! is_int($expiry) || ($refreshExpiry !== null && ! is_int($refreshExpiry))) {
             throw new MalformedResponse('session cache');
         }
 
-        return new Session($parsedRegion, $access, $refresh, $expiry);
+        return new Session($parsedRegion, $access, $refresh, $expiry, $refreshExpiry);
     }
 
     public function cooldown(mixed $value): bool
@@ -37,6 +38,18 @@ final class CacheValueParser
         }
         if (! is_bool($value)) {
             throw new MalformedResponse('cooldown cache');
+        }
+
+        return $value;
+    }
+
+    public function lockOwner(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (! is_string($value) || preg_match('/^[a-f0-9]{32}$/D', $value) !== 1) {
+            throw new MalformedResponse('refresh lock');
         }
 
         return $value;

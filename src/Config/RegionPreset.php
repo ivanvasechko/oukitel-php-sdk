@@ -6,11 +6,12 @@ namespace IvanVasechko\Oukitel\Config;
 
 use IvanVasechko\Oukitel\Enums\Region;
 
-/** Operator-supplied public protocol values; all regions are unverified by the author. */
+/** Public app-level protocol values; regional availability is not guaranteed. */
 final class RegionPreset
 {
     public const PROVIDED_AT = '2026-10-25';
 
+    /** No package-wide regional verification guarantee. */
     public const VERIFIED_AT = null;
 
     /** Public app protocol constant, not an account credential. */

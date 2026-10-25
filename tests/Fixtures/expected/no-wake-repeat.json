@@ -1,5 +1,9 @@
 {
-  "batteryPercent": 97,
   "isOnline": null,
-  "wifiSignalDbm": -63
+  "wifiSignalDbm": null,
+  "batteryPercent": 53,
+  "totalInputW": null,
+  "totalOutputW": null,
+  "acOutputEnabled": null,
+  "acChargingLimitPercent": null
 }

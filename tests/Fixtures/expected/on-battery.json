@@ -1,13 +1,21 @@
 {
-  "batteryPercent": 96,
+  "isOnline": true,
+  "wifiSignalDbm": -42,
+  "batteryPercent": 72,
+  "remainingDischargeMinutes": 140,
+  "remainingChargeMinutes": null,
   "totalInputW": 0,
-  "totalOutputW": 37,
+  "totalOutputW": 100,
   "acInputW": 0,
   "dcInputW": 0,
+  "temperatureC": 25.0,
+  "inverterTemperatureC": 30.5,
+  "acChargingLimitPercent": null,
   "acOutputEnabled": true,
-  "acOutputW": 37,
-  "remainingDischargeMinutes": 1380,
-  "remainingChargeMinutes": 1380,
-  "isOnline": null,
-  "wifiSignalDbm": -63
+  "acOutputW": 60,
+  "acOutputV": 230.0,
+  "dcOutputW": 10,
+  "usbOutputW": 10,
+  "typeCOutputW": 20,
+  "extra": {}
 }

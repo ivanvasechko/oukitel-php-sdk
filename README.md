@@ -11,8 +11,9 @@ Source-available SDK for personal and other permitted noncommercial uses under
 
 ## Status
 
-This branch prepares the standalone core API for **0.1.0**. It does not tag or
-publish a release; the examples below target the unreleased core API.
+This branch extends the unreleased standalone core with opt-in refresh
+orchestration and experimental controls. It does not tag or publish a release;
+the examples below target the development API, not an earlier published scaffold.
 PHP 8.2+ and Composer 2 are required. No framework is required.
 
 ## Install and quick start
@@ -55,19 +56,88 @@ in `extra`, normalized `rawTsl` entries and presence/timestamp `diagnostics`.
 Missing, null, false and zero are not interchangeable. A remaining-time value
 equal to 5940 becomes null; adjacent values are preserved.
 
-The only device write is an explicit high-frequency reporting wake request:
+The core account API has one explicit high-frequency reporting wake request:
 
 ```php
 $account->wake($devices[0]->id);
 ```
 
-Only call it after selecting a device. No automatic polling, refresh-token flow
-or general device controls are included.
+Only call it after selecting a device. General controls require a separate,
+explicit `controls()` call. Nothing starts polling or changes outputs
+automatically.
+
+### Experimental controls
+
+**Safety warning:** switching AC off cuts power to connected devices. Switching
+AC on energizes mains-voltage outlets. Never experiment on equipment powering
+critical loads or somebody else's devices. Select your own station, disconnect
+loads, remain present, and be prepared to check and restore settings physically.
+
+Every control API is experimental and may change without a major release.
+Support varies by model and firmware; verify compatibility before use.
+Request acceptance and cloud telemetry are not proof of physical output state.
+
+```php
+$device = $devices[0]->id; // Select and verify your own device first.
+$capabilities = $account->capabilities($device); // Read-only inference.
+$controls = $account->controls(); // No network request or write.
+
+// These calls change device settings. Do not run them blindly.
+$controls->setUsbOutput($device, true);
+$controls->setDcOutput($device, false);
+$controls->setAcOutput($device, false);
+$controls->setAcChargingLimit($device, 50);
+
+$result = $controls->sendAndConfirm(
+    $device,
+    ['usb_switch' => false],
+    attempts: 5,
+    delayMilliseconds: 1000,
+    timeoutSeconds: 15,
+);
+// $result->confirmed is bool; $result->observed maps codes to last observed values.
+```
+
+Switches use JSON booleans, not integer or string substitutes. The charging-limit
+policy permits every integer from **3 through 100**, step 1. The allowed set is
+`TslCode::AC_CHARGING_LIMIT_PERCENTAGES`. Invalid values fail before login,
+reads or device writes. This policy is not a guarantee of model compatibility.
+
+`send($device, ['ac_switch' => true])` validates the code allow-list and known
+values. The five allowed codes are `ac_switch`, `dc_switch`, `usb_switch`,
+`ac_charging_limit` and `high_frequency_reporting` (wake value 3 only).
+`$controls->unsafe()->send($device, ['custom_code' => 1])` returns a separate
+unsafe instance permitting other codes; the original remains safe. Known control
+value checks, valid code syntax and JSON-data checks still apply. Unknown codes
+can be dangerous and have not been validated.
+
+Controls are sent **at most once**, with no retry on network errors, HTTP 5xx,
+vendor 5032 or confirmation failure. A 5032 evicts the session and throws without
+reauthenticating and replaying the command. Do not blanket-retry control errors:
+an outcome can be ambiguous. Check the station and restore it deliberately.
+Every attempted control logs at `notice` with only its code and masked device
+suffix; no command values are logged.
+
+Confirmation reads a baseline before sending, then polls up to the specified
+attempt count and clock budget. Every target value must match and have a strictly
+newer numeric report timestamp. Stale values, missing/opaque timestamps and
+missing codes cannot confirm a command. Timeout returns `confirmed: false`;
+HTTP, parsing and cache errors still throw. One in-flight read is bounded by the
+transport's own deadlines and can outlast the polling budget; late results are
+not confirmed. Defaults are 5 attempts, 1000ms delay and 15 seconds. Limits are
+1-100 attempts, 0-60000ms delay and 1-300 seconds. Inject `controlDelay` (a closure
+receiving milliseconds) and `clock` through either client factory for offline
+tests without real sleeping.
+
+`capabilities()` returns `Capabilities` with `readable` and `controllable`
+lists of known `TslCode` values and `canRead()` / `canControl()` helpers. Presence
+plus the allow-list is an inference, not a model guarantee or a safety interlock;
+unknown codes are omitted.
 
 ### Configuration and reliability
 
 `create()` accepts named `httpClient`, `requestFactory`, `streamFactory`, `cache`,
-`logger`, `clock`, `options` and `regions` arguments. They use PSR-18, PSR-17,
+`logger`, `clock`, `options`, `regions` and `controlDelay` arguments. They use PSR-18, PSR-17,
 PSR-16, PSR-3 and PSR-20 respectively. Supplied clients/factories take precedence
 and are never replaced or reconfigured. Configure supplied clients' own timeouts.
 
@@ -80,6 +150,7 @@ and are never replaced or reconfigured. Configure supplied clients' own timeouts
 | User agent | `okhttp/4.9.3` |
 | Session refresh margin | 120 seconds |
 | Login-failure cooldown | 5 minutes |
+| Refresh-token use (`useRefreshToken`) | `false` |
 
 Automatically discovered Guzzle clients use exact connect/total deadlines.
 Symfony HttpClient 8.1+ uses separate connect/total deadlines; older Symfony and
@@ -92,11 +163,12 @@ Login/read requests retry only network failures and HTTP 5xx. HTTP 4xx, malforme
 responses, vendor failures and invalid requests are not retried. Wake is never
 transport-retried. An explicit vendor 5032 invalidates the session and permits
 one fresh login and replay, including wake; a second 5032 evicts and throws.
+This replay behavior does **not** apply to experimental controls.
 
 Sessions use an isolated in-memory store per client unless you supply PSR-16
 cache. Shared cache keys hash the full namespace, region and lowercased login
 into 64 hexadecimal characters. Passwords are never cached. Tokens are cached
-only until expiry minus the refresh margin. Cache exceptions and false
+only until expiry minus the refresh margin when refresh is disabled. Cache exceptions and false
 write/delete results raise `CacheFailed`. Malformed session entries are discarded
 with a safe warning; malformed cooldown entries fail closed.
 
@@ -104,9 +176,8 @@ A rejected login raises `AuthenticationFailed`; later attempts during cooldown
 raise `LoginCoolingDown`. `verify()` bypasses both cached sessions and cooldown,
 without populating or clearing them. Setting the cooldown to zero disables it.
 
-EU, US and CN presets contain public app-level constants provided on 2026-10-25.
-**All three remain unverified against a live account.** These are not account
-credentials, and their continued validity is not guaranteed. Override any field
+EU, US and CN presets contain public app-level constants, not account
+credentials. Regional availability and continued validity are not guaranteed. Override any field
 immutably, for example:
 
 ```php
@@ -115,6 +186,42 @@ use IvanVasechko\Oukitel\Config\RegionConfiguration;
 $configuration = RegionConfiguration::preset(Region::Eu)->withAppVersion('3.7.5');
 $client = OukitelClient::create(regions: ['EU' => $configuration]);
 ```
+
+### Refresh-token status and custom transports
+
+Login sessions retain optional `refreshExpiresAt`. Old four-argument `Session`
+construction and old cached sessions remain supported. The bundled transport
+has no verified refresh implementation. Its
+`refresh()` throws `RefreshUnavailable` without any HTTP call; enabling
+`useRefreshToken` through `create()` fails explicitly at construction.
+
+Applications with an independently verified custom `OukitelCloud` implementation
+can opt in using `OukitelClient::fromCloud($cloud, options: new
+ClientOptions(useRefreshToken: true))`. The manager reuses fresh access tokens,
+refreshes near expiry, and falls back to login only on `AuthenticationFailed`
+or `SessionExpired` (vendor 5032). A failed fallback login uses the usual cooldown.
+Other refresh errors propagate without a silent login fallback.
+
+With refresh enabled, cache retention extends to the later of access and known
+refresh expiry; access freshness is still checked separately. If refresh expiry
+is unknown, material is retained only until access expiry, and refresh is tried
+only before that expiry. Tokens are never assumed usable indefinitely.
+
+Refresh uses a 30-second owner-checked lease. Its complete `session:refreshing`
+namespace and account identity are hashed into a portable 64-character key.
+A busy worker reuses another worker's fresh result or throws `RefreshInProgress`
+before the requested operation is sent, rather than starting another login.
+PSR-16 has no atomic acquire or compare-and-delete: acquisition, ownership checks
+and release are **best effort**, not a distributed mutex. Processes can race
+between cache calls or outlive a lease. Use an atomic external lock where strict
+cross-worker exclusion is required.
+
+Custom transport/store implementers must add `OukitelCloud::refresh()` and
+`SessionStore::acquireRefreshLock()` / `releaseRefreshLock()` to their adapters.
+An unsupported refresh implementation should throw `RefreshUnavailable`.
+Implement the separate experimental `ControlCloud` only if device writes are
+supported; read-only clouds otherwise keep working, and attempted controls raise
+`ControlsUnavailable`. Never cache credentials or passwords.
 
 All SDK exceptions extend `OukitelException`. HTTP failure codes and vendor
 body codes are handled separately. Sensitive DTO debug/JSON fields and telemetry
@@ -141,13 +248,17 @@ $wakes = $fake->wakes();
 $snapshot = FixtureLoader::telemetry('offline');
 ```
 
-`FixtureLoader::SCENARIOS` lists 17 allowlisted synthetic/reconstructed protocol
-scenarios. They preserve available sanitized readings, not captured HTTP dumps,
-complete observation histories or guaranteed live-device state. Missing metadata
-is not fabricated. Fixtures use the production parser; traversal names are rejected.
+`FixtureLoader::SCENARIOS` lists 17 allowlisted, independently authored synthetic
+protocol examples. All example values are invented. They illustrate parsing
+behavior rather than real device state.
+Fixtures use the production parser; traversal names are rejected.
 
 The fake accepts `Telemetry|string` in `withTelemetry()`, explicit unconverted
 attributes in `withRawAttributes()`, and a throwable in `failLoginWith()`.
+It also supplies deterministic `refresh()`, `refreshCount()` and
+`failRefreshWith()`. Experimental controls record attempts in `commands()` and
+accept `failControlWith()`; they do not mutate configured telemetry or
+manufacture confirmation.
 Unconfigured reads throw rather than returning success-shaped defaults. Named
 fixtures configure both telemetry and raw attributes; a manually supplied
 `Telemetry` requires separate raw-attribute configuration.
@@ -166,7 +277,7 @@ rights the author can grant.
 Thanks to [VictorCV-DAM/ha-oukitel](https://github.com/VictorCV-DAM/ha-oukitel)
 for protocol research. No code from that project is included in this SDK.
 Its GPL licence does not automatically settle rights in vendor-owned material.
-Bundled presets use operator-reviewed public app constants; no third-party
+Bundled presets use public app constants; no third-party
 protocol implementation code is included.
 
 ## Rights-holder concerns

@@ -100,6 +100,37 @@ it('sends exactly the safe wake envelope once', function () {
         ->and($this->http->getRequests())->toHaveCount(1);
 });
 
+it('sends one control envelope with JSON booleans and integer percentages', function () {
+    $this->http->addResponse(new Response(200, [], '{"code":200}'));
+    $this->cloud->control($this->session, $this->device, ['usb_switch' => false, 'ac_charging_limit' => 3]);
+    $request = $this->http->getLastRequest();
+
+    expect($request->getMethod())->toBe('POST');
+    expect($request->getUri()->getPath())->toBe('/v2/binding/enduserapi/batchControlDevice');
+    expect($request->getHeaderLine('Authorization'))->toBe('example-access-token');
+    expect(json_decode((string) $request->getBody(), true, flags: JSON_THROW_ON_ERROR))->toBe([
+        'data' => '[{"usb_switch":false,"ac_charging_limit":3}]',
+        'deviceList' => [['deviceKey' => 'example/device key', 'productKey' => 'example/product key']],
+        'cacheTime' => 60, 'isCache' => 1, 'isCover' => 1, 'dataFormat' => 0, 'type' => 2,
+    ]);
+    expect($this->http->getRequests())->toHaveCount(1);
+});
+
+it('never retries control transport, HTTP, vendor or parsing failures', function (string $failure, string $expected) {
+    if ($failure === 'network') {
+        $this->http->setDefaultException(new NetworkException('private', (new Psr17Factory)->createRequest('POST', 'https://example.test')));
+    } else {
+        $this->http->setDefaultResponse(new Response($failure === 'http' ? 503 : 200, [],
+            $failure === 'malformed' ? '{broken' : '{"code":5032}'));
+    }
+
+    expect(fn () => $this->cloud->control($this->session, $this->device, ['ac_switch' => true]))->toThrow($expected);
+    expect($this->http->getRequests())->toHaveCount(1);
+})->with([
+    ['network', TransportFailed::class], ['http', ApiError::class],
+    ['vendor', SessionExpired::class], ['malformed', MalformedResponse::class],
+]);
+
 it('bounds 5xx attempts, closes failed streams and uses the configured delay', function () {
     $first = new Response(500, [], 'private server failure');
     $this->http->addResponse($first);

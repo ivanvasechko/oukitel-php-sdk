@@ -3,12 +3,12 @@
   "data": {
     "deviceData": {
       "isOnline": null,
-      "signalStrength": -63
+      "signalStrength": null
     },
     "customizeTslInfo": [
       {
         "resourceCode": "battery_percentage",
-        "resourceValce": 97,
+        "resourceValce": 53,
         "dataType": "INT"
       }
     ]

@@ -2,28 +2,28 @@
   "code": 200,
   "data": {
     "deviceData": {
-      "isOnline": null,
-      "signalStrength": -63
+      "isOnline": true,
+      "signalStrength": -42
     },
     "customizeTslInfo": [
       {
         "resourceCode": "battery_percentage",
-        "resourceValce": 97,
+        "resourceValce": 35,
         "dataType": "INT"
       },
       {
         "resourceCode": "remain_time",
-        "resourceValce": 3420,
+        "resourceValce": 5940,
         "dataType": "INT"
       },
       {
         "resourceCode": "remain_charging_time",
-        "resourceValce": 3420,
+        "resourceValce": 110,
         "dataType": "INT"
       },
       {
         "resourceCode": "total_input_power",
-        "resourceValce": 0,
+        "resourceValce": 240,
         "dataType": "INT"
       },
       {
@@ -33,7 +33,7 @@
       },
       {
         "resourceCode": "ac_input",
-        "resourceValce": 0,
+        "resourceValce": 240,
         "dataType": "INT"
       },
       {
@@ -42,14 +42,51 @@
         "dataType": "INT"
       },
       {
+        "resourceCode": "temp",
+        "resourceValce": 25,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "inverter_temp",
+        "resourceValce": "30.5",
+        "dataType": "FLOAT"
+      },
+      {
         "resourceCode": "ac_switch",
-        "resourceValce": true,
+        "resourceValce": false,
         "dataType": "BOOL"
       },
       {
-        "resourceCode": "ac_output_power",
-        "resourceValce": 0,
-        "dataType": "INT"
+        "resourceCode": "AC_Info",
+        "resourceValce": {
+          "1": false,
+          "2": 0,
+          "3": 230
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "DC_Info",
+        "resourceValce": {
+          "2": 0
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "USB_Info",
+        "resourceValce": {
+          "2": 0,
+          "3": 0
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "TypeC_Info",
+        "resourceValce": {
+          "2": 0,
+          "5": 0
+        },
+        "dataType": "STRUCT"
       }
     ]
   }
