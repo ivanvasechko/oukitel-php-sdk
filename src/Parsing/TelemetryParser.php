@@ -10,6 +10,8 @@ use IvanVasechko\Oukitel\Enums\TslDataType;
 
 final class TelemetryParser
 {
+    public function __construct(private readonly Redactor $redactor = new Redactor) {}
+
     /**
      * @param  array<string, mixed>  $deviceData
      * @param  list<TslAttribute>  $attributes
@@ -20,6 +22,13 @@ final class TelemetryParser
         $raw = [];
         $diagnostics = [];
         foreach ($attributes as $attribute) {
+            $attribute = new TslAttribute(
+                $attribute->resourceCode,
+                $this->redactor->value($attribute->resourceValue, $attribute->resourceCode),
+                $attribute->dataType,
+                $attribute->present,
+                $attribute->reportedAt,
+            );
             $diagnostics[] = [
                 'resourceCode' => $attribute->resourceCode, 'resourceValue' => $attribute->resourceValue,
                 'dataType' => $attribute->dataType, 'present' => $attribute->present, 'reportedAt' => $attribute->reportedAt,
@@ -28,7 +37,7 @@ final class TelemetryParser
                 continue;
             }
             $field = 'customizeTslInfo.resourceValce';
-            $value = match ($attribute->type()) {
+            $value = $this->redactor->isSensitive($attribute->resourceCode) ? '[redacted]' : match ($attribute->type()) {
                 TslDataType::Int => Values::integer($attribute->resourceValue, $field),
                 TslDataType::Float, TslDataType::Double, TslDataType::Decimal => Values::number($attribute->resourceValue, $field),
                 TslDataType::Bool => Values::boolean($attribute->resourceValue, $field),

@@ -10,7 +10,7 @@ final class Redactor
 {
     public function value(mixed $value, string $key = ''): mixed
     {
-        if (preg_match('/auth|key|token|secret|password|pwd|email|phone|sim|imei|imsi|mac|serial|^sn$|^id$|uid|device.?id|device.?name|locat|address|latitude|longitude|share.?code|binding.?code|perm.?code/i', $key) === 1) {
+        if ($this->isSensitive($key)) {
             return '[redacted]';
         }
         if (is_string($value) && in_array(substr(ltrim($value), 0, 1), ['{', '['], true)) {
@@ -31,5 +31,10 @@ final class Redactor
         }
 
         return $redacted;
+    }
+
+    public function isSensitive(string $key): bool
+    {
+        return preg_match('/auth|key|token|secret|password|pwd|email|phone|sim|imei|imsi|mac|serial|^sn$|^id$|uid|device.?id|device.?name|locat|address|latitude|longitude|share.?code|binding.?code|perm.?code/i', $key) === 1;
     }
 }
