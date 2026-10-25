@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace IvanVasechko\Oukitel\Testing;
 
 use IvanVasechko\Oukitel\Clock\SystemClock;
+use IvanVasechko\Oukitel\Contracts\ControlCloud;
 use IvanVasechko\Oukitel\Contracts\OukitelCloud;
 use IvanVasechko\Oukitel\DTOs\Credentials;
 use IvanVasechko\Oukitel\DTOs\Device;
@@ -12,12 +13,13 @@ use IvanVasechko\Oukitel\DTOs\DeviceId;
 use IvanVasechko\Oukitel\DTOs\Session;
 use IvanVasechko\Oukitel\DTOs\Telemetry;
 use IvanVasechko\Oukitel\DTOs\TslAttribute;
+use IvanVasechko\Oukitel\Parsing\ControlValueParser;
 use LogicException;
 use Psr\Clock\ClockInterface;
 use SensitiveParameter;
 use Throwable;
 
-final class FakeOukitelCloud implements OukitelCloud
+final class FakeOukitelCloud implements ControlCloud, OukitelCloud
 {
     /** @var list<Device>|null */
     private ?array $devices = null;
@@ -36,6 +38,11 @@ final class FakeOukitelCloud implements OukitelCloud
     private ?Throwable $refreshFailure = null;
 
     private int $refreshCalls = 0;
+
+    /** @var list<array{device: DeviceId, commands: array<string, mixed>}> */
+    private array $commands = [];
+
+    private ?Throwable $controlFailure = null;
 
     public function __construct(private readonly ClockInterface $clock = new SystemClock) {}
 
@@ -133,6 +140,37 @@ final class FakeOukitelCloud implements OukitelCloud
     public function wakes(): array
     {
         return $this->wakes;
+    }
+
+    /** @experimental */
+    public function failControlWith(Throwable $exception): self
+    {
+        $this->controlFailure = $exception;
+
+        return $this;
+    }
+
+    /**
+     * @experimental Records attempts without changing configured telemetry.
+     *
+     * @param  array<string, mixed>  $commands
+     */
+    public function control(#[SensitiveParameter] Session $session, #[SensitiveParameter] DeviceId $device, #[SensitiveParameter] array $commands): void
+    {
+        $this->commands[] = ['device' => $device, 'commands' => ControlValueParser::commands($commands, true)];
+        if ($this->controlFailure !== null) {
+            throw $this->controlFailure;
+        }
+    }
+
+    /**
+     * @experimental
+     *
+     * @return list<array{device: DeviceId, commands: array<string, mixed>}>
+     */
+    public function commands(): array
+    {
+        return $this->commands;
     }
 
     private function key(#[SensitiveParameter] DeviceId $device): string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace IvanVasechko\Oukitel;
 
+use Closure;
 use Http\Discovery\Exception\NotFoundException;
 use Http\Discovery\Psr17FactoryDiscovery;
 use IvanVasechko\Oukitel\Clock\SystemClock;
@@ -30,9 +31,18 @@ use SensitiveParameter;
 
 final class OukitelClient
 {
-    public function __construct(private readonly SessionManager $sessions) {}
+    /** @param Closure(int): void|null $controlDelay */
+    public function __construct(
+        private readonly SessionManager $sessions,
+        private readonly LoggerInterface $logger = new NullLogger,
+        private readonly ClockInterface $clock = new SystemClock,
+        private readonly ?Closure $controlDelay = null,
+    ) {}
 
-    /** @param array<string, RegionConfiguration> $regions */
+    /**
+     * @param  array<string, RegionConfiguration>  $regions
+     * @param  Closure(int): void|null  $controlDelay
+     */
     public static function create(
         ?ClientInterface $httpClient = null,
         ?RequestFactoryInterface $requestFactory = null,
@@ -42,6 +52,7 @@ final class OukitelClient
         ?ClockInterface $clock = null,
         ?ClientOptions $options = null,
         array $regions = [],
+        ?Closure $controlDelay = null,
     ): self {
         $options ??= new ClientOptions;
         $logger ??= new NullLogger;
@@ -62,25 +73,27 @@ final class OukitelClient
         $httpClient ??= HttpClientFactory::discover($options);
         $cloud = new AcceleronixCloudClient($httpClient, $requestFactory, $streamFactory, $regions, $options, logger: $logger);
 
-        return self::fromCloud($cloud, $cache, $logger, $clock, $options);
+        return self::fromCloud($cloud, $cache, $logger, $clock, $options, $controlDelay);
     }
 
+    /** @param Closure(int): void|null $controlDelay */
     public static function fromCloud(
         OukitelCloud $cloud,
         ?CacheInterface $cache = null,
         ?LoggerInterface $logger = null,
         ?ClockInterface $clock = null,
         ?ClientOptions $options = null,
+        ?Closure $controlDelay = null,
     ): self {
         $clock ??= new SystemClock;
         $logger ??= new NullLogger;
         $store = $cache === null ? new InMemorySessionStore($clock) : new Psr16SessionStore($cache, $logger);
 
-        return new self(new SessionManager($cloud, $store, $clock, $options ?? new ClientOptions));
+        return new self(new SessionManager($cloud, $store, $clock, $options ?? new ClientOptions), $logger, $clock, $controlDelay);
     }
 
     public function account(#[SensitiveParameter] Credentials $credentials): Account
     {
-        return new Account($this->sessions, $credentials);
+        return new Account($this->sessions, $credentials, $this->logger, $this->clock, $this->controlDelay);
     }
 }

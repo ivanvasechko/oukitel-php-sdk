@@ -9,9 +9,12 @@ use IvanVasechko\Oukitel\Enums\TslCode;
 use JsonException;
 use SensitiveParameter;
 
+/** @experimental */
 final class ControlValueParser
 {
     /**
+     * @experimental
+     *
      * @param  array<array-key, mixed>  $commands
      * @return array<string, mixed>
      */
@@ -51,6 +54,7 @@ final class ControlValueParser
         return $validated;
     }
 
+    /** @experimental */
     private static function assertJsonValue(mixed $value, int $depth = 0): void
     {
         if ($depth > 64) {

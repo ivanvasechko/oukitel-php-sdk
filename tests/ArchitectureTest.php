@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use IvanVasechko\Oukitel\Controls\OukitelControls;
 
 it('keeps production code framework-independent with mixed guards at parsing boundaries', function (): void {
     $root = dirname(__DIR__).'/src';
@@ -48,6 +49,22 @@ it('ships only synthetic fixture envelopes with minimal example metadata', funct
             expect(array_keys($attribute))->toBe(['resourceCode', 'resourceValce', 'dataType']);
             expect(in_array($attribute['resourceCode'], $codes, true))->toBeTrue();
         }
+    }
+});
+
+it('keeps experimental controls outside session and parsing implementation paths', function () {
+    foreach (['Session', 'Parsing'] as $directory) {
+        foreach (glob(dirname(__DIR__).'/src/'.$directory.'/*.php') as $path) {
+            expect(file_get_contents($path))->not->toContain('IvanVasechko\\Oukitel\\Controls\\');
+        }
+    }
+});
+
+it('marks every control API class and method experimental', function () {
+    $class = new ReflectionClass(OukitelControls::class);
+    expect($class->getDocComment())->toContain('@experimental');
+    foreach ($class->getMethods() as $method) {
+        expect($method->getDocComment())->toContain('@experimental');
     }
 });
 
