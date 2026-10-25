@@ -63,6 +63,10 @@ composer pint -- --test
 composer audit
 ```
 
+This library intentionally does not commit `composer.lock`. Consumers use their
+application lockfile; CI resolves both the lowest and latest supported dependency
+versions. Run `composer update` to refresh the local development lockfile.
+
 PHPStan currently checks the bootstrap harness only. CI runs bootstrap tests without
 a coverage gate until production PHP source exists; then it enforces 90% coverage.
 Do not interpret bootstrap test results as SDK functionality or production coverage.
