@@ -1,0 +1,17 @@
+name: Bug report
+description: Report a reproducible problem without sensitive data
+body:
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I removed all credentials and device identifiers.
+          required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction and expected result
+      description: Include versions and a minimal example with generated values only.
+    validations:
+      required: true

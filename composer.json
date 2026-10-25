@@ -1,0 +1,37 @@
+{
+  "name": "ivanvasechko/oukitel-php-sdk",
+  "description": "Unofficial framework-agnostic Oukitel power-station SDK (bootstrap; no protocol implementation yet).",
+  "type": "library",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "authors": [
+    {
+      "name": "Ivan Vasechko",
+      "homepage": "https://github.com/ivanvasechko"
+    }
+  ],
+  "require": {
+    "php": "^8.2"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.32.1",
+    "pestphp/pest": "^2.36 || ^3.0 || ^4.0",
+    "phpstan/phpstan": "^2.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "IvanVasechko\\Oukitel\\": "src/"
+    }
+  },
+  "scripts": {
+    "test": "pest",
+    "test-coverage": "pest --coverage --min=90",
+    "phpstan": "phpstan analyse --memory-limit=512M",
+    "pint": "pint"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    },
+    "sort-packages": true
+  }
+}

@@ -1,0 +1,10 @@
+/vendor/
+/.phpunit.cache/
+/.phpunit.result.cache
+/.phpunit-watcher.yml
+/coverage/
+/.env
+/.env.*
+!/.env.example
+/auth.json
+/composer.lock

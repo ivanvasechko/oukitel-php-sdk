@@ -1,0 +1,16 @@
+Required Notice: Copyright (c) Ivan Vasechko (https://github.com/ivanvasechko)
+
+Unofficial. Not affiliated with, endorsed by, or supported by Oukitel,
+Wonderfree, Quectel or Acceleronix. All trademarks belong to their owners.
+No ownership of the vendor API, its constants or data formats is claimed.
+This licence grants only rights the author can grant, not third-party rights.
+
+Intended for personal and other permitted noncommercial uses under PolyForm
+Noncommercial 1.0.0. Free to use and modify under that licence.
+
+The intended protocol is reverse-engineered, has no SLA and may break at any
+time. Use may be subject to vendor terms and other legal restrictions.
+
+Thanks to VictorCV-DAM/ha-oukitel for protocol research:
+https://github.com/VictorCV-DAM/ha-oukitel (GPL-3.0).
+No code from that project is included in this bootstrap.

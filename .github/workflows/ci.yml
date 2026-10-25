@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }} / ${{ matrix.dependencies }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+        dependencies: [lowest, stable]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+          tools: composer:v2
+      - run: composer update --prefer-dist --no-interaction --prefer-${{ matrix.dependencies }}
+      - run: composer validate --strict
+      - run: composer pint -- --test
+      - run: composer phpstan
+      - name: Tests (coverage gate activates with production source)
+        shell: bash
+        run: |
+          if find src -name '*.php' -print -quit 2>/dev/null | grep -q .; then
+            composer test-coverage
+          else
+            composer test
+          fi
+      - run: composer audit
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  quality:
+    name: Quality gate
+    if: always()
+    needs: [php, secrets]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all checks
+        env:
+          PHP_RESULT: ${{ needs.php.result }}
+          SECRET_RESULT: ${{ needs.secrets.result }}
+        run: test "$PHP_RESULT" = success && test "$SECRET_RESULT" = success

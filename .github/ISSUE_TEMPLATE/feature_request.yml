@@ -1,0 +1,16 @@
+name: Feature request
+description: Propose a focused enhancement
+body:
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I removed all credentials and device identifiers.
+          required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Problem and proposed solution
+    validations:
+      required: true
