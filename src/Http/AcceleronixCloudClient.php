@@ -19,6 +19,7 @@ use IvanVasechko\Oukitel\DTOs\Telemetry;
 use IvanVasechko\Oukitel\Enums\Region;
 use IvanVasechko\Oukitel\Exceptions\ApiError;
 use IvanVasechko\Oukitel\Exceptions\ConfigurationMissing;
+use IvanVasechko\Oukitel\Exceptions\RefreshUnavailable;
 use IvanVasechko\Oukitel\Exceptions\TransportFailed;
 use IvanVasechko\Oukitel\Parsing\ResponseParser;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -49,7 +50,15 @@ final class AcceleronixCloudClient implements OukitelCloud
         ?Closure $delay = null,
         LoggerInterface $logger = new NullLogger,
     ) {
+        if ($options->useRefreshToken) {
+            throw new RefreshUnavailable;
+        }
         $this->retrying = new RetryingHttpClient($http, $options, $delay, $logger);
+    }
+
+    public function refresh(#[SensitiveParameter] Session $session): Session
+    {
+        throw new RefreshUnavailable;
     }
 
     public function login(#[SensitiveParameter] Credentials $credentials): Session

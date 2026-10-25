@@ -15,6 +15,8 @@ interface OukitelCloud
 {
     public function login(Credentials $credentials): Session;
 
+    public function refresh(Session $session): Session;
+
     /** @return list<Device> */
     public function devices(Session $session): array;
 

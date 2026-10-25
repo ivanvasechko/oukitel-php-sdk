@@ -16,6 +16,7 @@ final readonly class ClientOptions
         public string $userAgent = 'okhttp/4.9.3',
         public int $refreshBeforeSeconds = 120,
         public int $loginFailureCooldownMinutes = 5,
+        public bool $useRefreshToken = false,
     ) {
         if ($timeoutSeconds < 1 || $connectTimeoutSeconds < 1 || $retryTimes < 1
             || $retryDelayMilliseconds < 0 || $refreshBeforeSeconds < 0

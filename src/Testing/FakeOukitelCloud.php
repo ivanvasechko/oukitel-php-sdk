@@ -33,6 +33,10 @@ final class FakeOukitelCloud implements OukitelCloud
 
     private ?Throwable $loginFailure = null;
 
+    private ?Throwable $refreshFailure = null;
+
+    private int $refreshCalls = 0;
+
     public function __construct(private readonly ClockInterface $clock = new SystemClock) {}
 
     /** @param list<Device> $devices */
@@ -78,7 +82,31 @@ final class FakeOukitelCloud implements OukitelCloud
             throw $this->loginFailure;
         }
 
-        return new Session($credentials->region, 'fake-access-token', 'fake-refresh-token', $this->clock->now()->getTimestamp() + 3600);
+        return new Session($credentials->region, 'fake-access-token', 'fake-refresh-token',
+            $this->clock->now()->getTimestamp() + 3600, $this->clock->now()->getTimestamp() + 2_592_000);
+    }
+
+    public function failRefreshWith(Throwable $exception): self
+    {
+        $this->refreshFailure = $exception;
+
+        return $this;
+    }
+
+    public function refresh(#[SensitiveParameter] Session $session): Session
+    {
+        $this->refreshCalls++;
+        if ($this->refreshFailure !== null) {
+            throw $this->refreshFailure;
+        }
+
+        return new Session($session->region, 'fake-refreshed-access-token', 'fake-refreshed-refresh-token',
+            $this->clock->now()->getTimestamp() + 3600, $this->clock->now()->getTimestamp() + 2_592_000);
+    }
+
+    public function refreshCount(): int
+    {
+        return $this->refreshCalls;
     }
 
     public function devices(#[SensitiveParameter] Session $session): array
