@@ -43,6 +43,7 @@ it('caches minimal sessions with exact margin TTL and portable full identity has
         ->and($this->cache->values[$key])->toBe([
             'region' => 'EU', 'access_token' => 'example-token-1',
             'refresh_token' => 'example-refresh', 'expires_at' => 1_800_003_600,
+            'refresh_expires_at' => null,
         ]);
     $this->manager->devices(new Credentials(Region::Us, 'user@example.test', 'example-password'));
     $this->manager->devices(new Credentials(Region::Eu, 'another@example.test', 'example-password'));

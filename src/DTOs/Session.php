@@ -15,9 +15,10 @@ final readonly class Session implements JsonSerializable
         #[SensitiveParameter] public string $accessToken,
         #[SensitiveParameter] public string $refreshToken,
         public int $expiresAt,
+        public ?int $refreshExpiresAt = null,
     ) {}
 
-    /** @return array{region: string, accessToken: string, refreshToken: string, expiresAt: int} */
+    /** @return array{region: string, accessToken: string, refreshToken: string, expiresAt: int, refreshExpiresAt: ?int} */
     public function __debugInfo(): array
     {
         return [
@@ -25,10 +26,11 @@ final readonly class Session implements JsonSerializable
             'accessToken' => '[redacted]',
             'refreshToken' => '[redacted]',
             'expiresAt' => $this->expiresAt,
+            'refreshExpiresAt' => $this->refreshExpiresAt,
         ];
     }
 
-    /** @return array{region: string, accessToken: string, refreshToken: string, expiresAt: int} */
+    /** @return array{region: string, accessToken: string, refreshToken: string, expiresAt: int, refreshExpiresAt: ?int} */
     public function jsonSerialize(): array
     {
         return $this->__debugInfo();

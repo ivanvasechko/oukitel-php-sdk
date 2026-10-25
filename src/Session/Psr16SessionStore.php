@@ -45,6 +45,7 @@ final class Psr16SessionStore implements SessionStore
             'access_token' => $session->accessToken,
             'refresh_token' => $session->refreshToken,
             'expires_at' => $session->expiresAt,
+            'refresh_expires_at' => $session->refreshExpiresAt,
         ], $ttl))) {
             throw new CacheFailed;
         }
