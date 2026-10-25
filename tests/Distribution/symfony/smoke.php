@@ -6,8 +6,13 @@ require __DIR__.'/vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use IvanVasechko\Oukitel\Config\ClientOptions;
+use IvanVasechko\Oukitel\DTOs\Credentials;
+use IvanVasechko\Oukitel\DTOs\DeviceId;
+use IvanVasechko\Oukitel\Enums\Region;
+use IvanVasechko\Oukitel\Enums\TslCode;
 use IvanVasechko\Oukitel\Http\HttpClientFactory;
 use IvanVasechko\Oukitel\OukitelClient;
+use IvanVasechko\Oukitel\Testing\FakeOukitelCloud;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Psr18Client;
@@ -30,3 +35,13 @@ if ($observed['max_connect_duration'] != 3 || $observed['max_duration'] != 10 ||
     throw new RuntimeException('Symfony deadlines or redirect policy differ from configured options.');
 }
 echo "Archive-installed SDK discovers Symfony and applies exact connect/total deadlines.\n";
+
+$device = new DeviceId('example-device', 'example-product');
+$fake = (new FakeOukitelCloud)->withTelemetry($device, 'online');
+$account = OukitelClient::fromCloud($fake)->account(new Credentials(Region::Eu, 'example@example.test', 'example-password'));
+$account->controls()->setDcOutput($device, false);
+if ($fake->commands() !== [['device' => $device, 'commands' => ['dc_switch' => false]]]
+    || ! $account->capabilities($device)->canControl(TslCode::DcSwitch)) {
+    throw new RuntimeException('Archive-installed experimental API did not load without development dependencies.');
+}
+echo "Archive-installed experimental controls and capabilities work with Symfony only.\n";
