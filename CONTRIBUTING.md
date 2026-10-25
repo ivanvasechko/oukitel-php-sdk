@@ -6,7 +6,7 @@ Contributions are provided under this repository's licence.
 
 Never commit real credentials, device/product keys, account emails, tokens,
 `authKey` values, Tuya access IDs/keys or UIDs. Fixtures must contain generated
-values only. Protocol work must follow EPIC-15's clean-room boundary and document
+values only. Protocol work must use a clean-room implementation and document
 the provenance of bundled public app constants. Never copy reference implementation
 code or publish account secrets.
 

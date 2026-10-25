@@ -13,7 +13,7 @@ Source-available SDK for personal and other permitted noncommercial uses under
 
 Repository bootstrap only. No protocol implementation, vendor constants, released
 version, or Packagist installation is available yet. Do not use in production.
-Protocol implementation follows in power-platform task 15-02.
+Protocol implementation is planned for a future release.
 
 ## Install and quick start
 
@@ -40,7 +40,7 @@ rights the author can grant.
 Thanks to [VictorCV-DAM/ha-oukitel](https://github.com/VictorCV-DAM/ha-oukitel)
 for protocol research. No code from that project is included in this bootstrap.
 Its GPL licence does not automatically settle rights in vendor-owned material.
-Region presets are planned for task 15-02 under EPIC-15's explicit decision.
+Region presets are planned for a future release.
 This bootstrap contains no vendor constants or third-party protocol code.
 
 ## Rights-holder concerns
