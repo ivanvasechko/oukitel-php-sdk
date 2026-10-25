@@ -17,4 +17,9 @@ interface SessionStore
     public function isCoolingDown(string $key): bool;
 
     public function coolDown(string $key, int $ttl): void;
+
+    /** Best effort, not an atomic mutex. Returns an ownership token or null when busy. */
+    public function acquireRefreshLock(string $key, int $ttl): ?string;
+
+    public function releaseRefreshLock(string $key, string $owner): void;
 }

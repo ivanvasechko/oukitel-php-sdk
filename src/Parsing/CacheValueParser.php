@@ -42,4 +42,16 @@ final class CacheValueParser
 
         return $value;
     }
+
+    public function lockOwner(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (! is_string($value) || preg_match('/^[a-f0-9]{32}$/D', $value) !== 1) {
+            throw new MalformedResponse('refresh lock');
+        }
+
+        return $value;
+    }
 }

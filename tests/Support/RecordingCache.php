@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace IvanVasechko\Oukitel\Tests\Support;
 
+use Closure;
 use DateInterval;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
@@ -20,6 +21,8 @@ final class RecordingCache implements CacheInterface
 
     public bool $throw = false;
 
+    public ?Closure $afterSet = null;
+
     public function get(string $key, mixed $default = null): mixed
     {
         $this->outcome('get');
@@ -34,6 +37,9 @@ final class RecordingCache implements CacheInterface
         }
         $this->values[$key] = $value;
         $this->ttls[$key] = $ttl;
+        if ($this->afterSet !== null) {
+            ($this->afterSet)($key, $value);
+        }
 
         return true;
     }
