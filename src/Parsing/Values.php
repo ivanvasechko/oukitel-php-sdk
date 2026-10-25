@@ -36,6 +36,10 @@ final class Values
         }
         if ((is_float($value) && is_finite($value) && floor($value) === $value)
             || (is_string($value) && preg_match('/^-?\d+$/D', $value) === 1)) {
+            if (is_string($value)) {
+                $digits = ltrim($value, '-0');
+                $value = ($value[0] === '-' ? '-' : '').($digits === '' ? '0' : $digits);
+            }
             $integer = filter_var($value, FILTER_VALIDATE_INT);
             if ($integer !== false) {
                 return $integer;

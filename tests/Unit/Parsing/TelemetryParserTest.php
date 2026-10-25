@@ -4,6 +4,17 @@ declare(strict_types=1);
 
 use IvanVasechko\Oukitel\Exceptions\MalformedResponse;
 use IvanVasechko\Oukitel\Parsing\ResponseParser;
+use IvanVasechko\Oukitel\Parsing\Values;
+
+it('accepts zero-padded integer fields without accepting integer overflow', function () {
+    expect(Values::integer('0075', 'test'))->toBe(75)
+        ->and(Values::integer('-0075', 'test'))->toBe(-75)
+        ->and(Values::integer('000', 'test'))->toBe(0)
+        ->and(Values::integer((string) PHP_INT_MIN, 'test'))->toBe(PHP_INT_MIN)
+        ->and(Values::integer((string) PHP_INT_MAX, 'test'))->toBe(PHP_INT_MAX);
+    expect(fn () => Values::integer(PHP_INT_MAX.'0', 'test'))
+        ->toThrow(MalformedResponse::class);
+});
 
 it('preserves the audited telemetry scenarios with explicit outlet alias corrections', function (string $name): void {
     $root = dirname(__DIR__, 3);
