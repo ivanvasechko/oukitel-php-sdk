@@ -1,0 +1,41 @@
+{
+  "code": 200,
+  "data": {
+    "deviceData": {
+      "isOnline": null,
+      "signalStrength": null
+    },
+    "customizeTslInfo": [
+      {
+        "resourceCode": "battery_percentage",
+        "resourceValce": 100,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "total_input_power",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "total_output_power",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "ac_input",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "ac_switch",
+        "resourceValce": false,
+        "dataType": "BOOL"
+      },
+      {
+        "resourceCode": "ac_output_power",
+        "resourceValce": 0,
+        "dataType": "INT"
+      }
+    ]
+  }
+}

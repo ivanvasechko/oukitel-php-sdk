@@ -8,7 +8,13 @@ it('declares an unofficial noncommercial package without framework dependencies'
     expect($manifest['name'])->toBe('ivanvasechko/oukitel-php-sdk')
         ->and($manifest['license'])->toBe('PolyForm-Noncommercial-1.0.0')
         ->and($manifest['description'])->toStartWith('Unofficial')
-        ->and(array_keys($manifest['require']))->toBe(['php']);
+        ->and($manifest['require'])->toHaveKeys([
+            'php', 'psr/http-client', 'psr/http-factory', 'psr/simple-cache', 'psr/log', 'psr/clock',
+        ]);
+
+    foreach (array_keys($manifest['require']) as $dependency) {
+        expect($dependency)->not->toStartWith('illuminate/')->not->toStartWith('laravel/');
+    }
 });
 
 it('ships its licence and required notice', function (): void {

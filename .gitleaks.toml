@@ -1,0 +1,12 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Public deterministic crypto-test nonce, not an account credential."
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^0123456789ABCDEF$''']
+paths = ['''^tests/Unit/Crypto/(PasswordCipherTest|LoginSignatureTest)\.php$''']

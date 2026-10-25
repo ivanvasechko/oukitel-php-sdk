@@ -1,0 +1,16 @@
+{
+  "code": 200,
+  "data": {
+    "deviceData": {
+      "isOnline": null,
+      "signalStrength": -63
+    },
+    "customizeTslInfo": [
+      {
+        "resourceCode": "battery_percentage",
+        "resourceValce": 97,
+        "dataType": "INT"
+      }
+    ]
+  }
+}

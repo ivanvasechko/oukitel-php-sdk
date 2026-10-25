@@ -1,0 +1,116 @@
+{
+  "code": 200,
+  "data": {
+    "deviceData": {
+      "isOnline": null,
+      "signalStrength": -60
+    },
+    "customizeTslInfo": [
+      {
+        "resourceCode": "battery_percentage",
+        "resourceValce": 100,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "total_input_power",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "total_output_power",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "ac_input",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "dc_input",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "temp",
+        "resourceValce": 38,
+        "dataType": "FLOAT"
+      },
+      {
+        "resourceCode": "ac_charging_limit",
+        "resourceValce": 100,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "ac_switch",
+        "resourceValce": false,
+        "dataType": "BOOL"
+      },
+      {
+        "resourceCode": "ac_output_power",
+        "resourceValce": 0,
+        "dataType": "INT"
+      },
+      {
+        "resourceCode": "ACvoltage_Switchover",
+        "resourceValce": "230",
+        "dataType": "STRING"
+      },
+      {
+        "resourceCode": "dc_data",
+        "resourceValce": {
+          "car1_output": "0"
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "usb_switch",
+        "resourceValce": false,
+        "dataType": "STRING"
+      },
+      {
+        "resourceCode": "high_frequency_reporting",
+        "resourceValce": "0",
+        "dataType": "STRING"
+      },
+      {
+        "resourceCode": "dc_switch",
+        "resourceValce": false,
+        "dataType": "STRING"
+      },
+      {
+        "resourceCode": "typec_data",
+        "resourceValce": {
+          "Typec1_output": "0",
+          "Typec4_output": "0",
+          "Typec3_output": "0",
+          "Typec2_output": "0"
+        },
+        "dataType": "STRUCT"
+      },
+      {
+        "resourceCode": "Frequency_Switchover",
+        "resourceValce": "0",
+        "dataType": "STRING"
+      },
+      {
+        "resourceCode": "AC_Version",
+        "resourceValce": 106,
+        "dataType": "STRING"
+      },
+      {
+        "resourceCode": "BMS_Version",
+        "resourceValce": 215,
+        "dataType": "STRING"
+      },
+      {
+        "resourceCode": "usb_data",
+        "resourceValce": {
+          "USB_QC2_output": "0",
+          "USB_QC1_output": "0"
+        },
+        "dataType": "STRUCT"
+      }
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 parameters:
     level: max
     paths:
+        - src
         - tests/StaticAnalysis.php
-    # Add src when the protocol implementation lands in 15-02.
