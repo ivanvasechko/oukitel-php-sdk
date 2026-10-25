@@ -1,0 +1,27 @@
+{
+    "name": "sdk-distribution/guzzle-smoke",
+    "description": "Isolated distribution check with Guzzle as the only explicit HTTP implementation.",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "ivanvasechko/oukitel-php-sdk": "*",
+        "guzzlehttp/guzzle": "^8.3"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "sdk",
+            "options": {
+                "symlink": false,
+                "versions": {
+                    "ivanvasechko/oukitel-php-sdk": "0.1.0"
+                }
+            }
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    }
+}
