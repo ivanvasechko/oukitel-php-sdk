@@ -14,3 +14,8 @@
 /CONTRIBUTING.md export-ignore
 /SECURITY.md export-ignore
 /src/.gitkeep export-ignore
+/node_modules export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+/.markdownlint-cli2.jsonc export-ignore
+/.markdown-link-check.json export-ignore
