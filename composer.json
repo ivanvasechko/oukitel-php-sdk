@@ -48,6 +48,7 @@
     "symfony/http-client": "Alternative PSR-18 HTTP transport."
   },
   "scripts": {
+    "docs": "@php tests/Documentation/check.php",
     "test": "pest",
     "test-coverage": "pest --coverage --min=90",
     "phpstan": "phpstan analyse --memory-limit=512M",

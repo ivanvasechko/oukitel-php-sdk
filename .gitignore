@@ -8,3 +8,4 @@
 !/.env.example
 /auth.json
 /composer.lock
+/node_modules/
