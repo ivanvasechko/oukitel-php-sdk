@@ -1,0 +1,11 @@
+{
+  "timeout": "30s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "10s",
+  "ignorePatterns": [
+    {
+      "pattern": "^https://github\\.com/ivanvasechko/oukitel-php-sdk/security/advisories/new$"
+    }
+  ]
+}

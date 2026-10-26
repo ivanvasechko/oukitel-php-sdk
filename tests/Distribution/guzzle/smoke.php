@@ -54,7 +54,8 @@ if ($fake->refreshCount() !== 1) {
     throw new RuntimeException('Archive-installed fake refresh did not record the operation.');
 }
 $installed = __DIR__.'/vendor/ivanvasechko/oukitel-php-sdk';
-foreach (['docs', 'tests', 'vendor', '.github', '.git', '.gitleaks.toml', 'composer.lock', 'phpstan.neon', 'phpunit.xml'] as $excluded) {
+foreach (['docs', 'tests', 'vendor', '.github', '.git', '.gitleaks.toml', 'composer.lock', 'phpstan.neon', 'phpunit.xml',
+    'node_modules', 'package.json', 'package-lock.json', '.markdownlint-cli2.jsonc', '.markdown-link-check.json'] as $excluded) {
     if (file_exists($installed.'/'.$excluded)) {
         throw new RuntimeException('Development files leaked into the distribution.');
     }

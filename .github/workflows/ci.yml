@@ -62,6 +62,10 @@ jobs:
         working-directory: /tmp/oukitel-consumer
       - run: php smoke.php
         working-directory: /tmp/oukitel-consumer
+      - name: Run installed README against HTTP mock
+        if: matrix.backend == 'guzzle'
+        working-directory: /tmp/oukitel-consumer
+        run: php "$GITHUB_WORKSPACE/tests/Documentation/check.php" "$PWD/vendor/ivanvasechko/oukitel-php-sdk" "$PWD/vendor/autoload.php"
       - run: composer audit
         working-directory: /tmp/oukitel-consumer
   secrets:
@@ -74,10 +78,29 @@ jobs:
       - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+      - run: composer update --no-interaction --prefer-dist
+      - run: composer docs
+      - run: npm ci
+      - run: npm run docs:check
+      - run: npm audit
   quality:
     name: Quality gate
     if: always()
-    needs: [php, distribution, secrets]
+    needs: [php, distribution, secrets, docs]
     runs-on: ubuntu-latest
     steps:
       - name: Require all checks
@@ -85,4 +108,5 @@ jobs:
           PHP_RESULT: ${{ needs.php.result }}
           SECRET_RESULT: ${{ needs.secrets.result }}
           DISTRIBUTION_RESULT: ${{ needs.distribution.result }}
-        run: test "$PHP_RESULT" = success && test "$SECRET_RESULT" = success && test "$DISTRIBUTION_RESULT" = success
+          DOCS_RESULT: ${{ needs.docs.result }}
+        run: test "$PHP_RESULT" = success && test "$SECRET_RESULT" = success && test "$DISTRIBUTION_RESULT" = success && test "$DOCS_RESULT" = success
