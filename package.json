@@ -2,6 +2,7 @@
   "name": "oukitel-sdk-documentation",
   "private": true,
   "scripts": {
+    "release:test": "node --test .github/scripts/validate-release.test.mjs",
     "docs:lint": "markdownlint-cli2 '*.md' 'docs/**/*.md' '.github/**/*.md'",
     "docs:links": "markdown-link-check --config .markdown-link-check.json README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md docs/UPGRADING.md .github/PULL_REQUEST_TEMPLATE.md",
     "docs:check": "npm run docs:lint && npm run docs:links"

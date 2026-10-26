@@ -96,6 +96,7 @@ jobs:
       - run: composer docs
       - run: npm ci
       - run: npm run docs:check
+      - run: npm run release:test
       - run: npm audit
   quality:
     name: Quality gate
