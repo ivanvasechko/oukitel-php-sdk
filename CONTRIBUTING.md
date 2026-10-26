@@ -40,6 +40,20 @@ For an existing tag, run **Actions → Release validation → Run workflow** on
 `main`, supplying the tag, before publishing its release. This also validates
 older tags whose commit predates the UI-release workflow.
 
+### Where to check publication
+
+- **Releases:** published version and release notes.
+- **Actions → Release validation:** validation outcome, not publication itself.
+- **Packagist:** indexed version available to Composer consumers.
+
+The repository's **Deployments** page is not a release dashboard. This package
+is a library, not a deployed application; the release workflow creates no
+deployment records. A successful release therefore does not add a green entry
+there. For new tags containing this workflow, UI publication triggers validation
+automatically; older tags may need the manual workflow described above.
+
+### Release access
+
 Keep repository write/admin access limited to intended release maintainers.
 Audit installed Apps and tokens as well as collaborators and write-enabled deploy
 keys. Workflows use read-only tokens and do not hold release credentials.

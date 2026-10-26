@@ -5,6 +5,25 @@ Semantic Versioning.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-26
+
+Documentation and release-automation update; no SDK runtime or API changes.
+
+### Changed
+
+- Publish releases through GitHub UI with optional GPG signing, rather than
+  requiring signed tags and creating releases automatically.
+- Validate published releases with read-only permissions: canonical version,
+  matching nonempty changelog notes, ancestry on `main`, and successful latest
+  main-push CI for the exact tagged commit.
+- Support manual validation of existing tags without deployment approval.
+- Document immutable version tags, immediate Packagist indexing and where to
+  check release validation results. Package releases do not create deployments.
+
+### Added
+
+- 23 regression tests covering release metadata and exact-commit CI validation.
+
 ## [0.3.0] - 2026-10-26
 
 First announced standalone release. PHP 8.2+; no framework required.
