@@ -5,8 +5,9 @@ Semantic Versioning.
 
 ## [Unreleased]
 
-Development API includes core and experimental controls. No release tag or
-publication is created here.
+## [0.3.0] - 2026-10-26
+
+First announced standalone release. PHP 8.2+; no framework required.
 
 ### Added
 
@@ -27,6 +28,8 @@ publication is created here.
   charging range, explicit unsafe code opt-in and value-free notice logging.
 - At-most-once control sending, fresh-timestamp confirmation with injectable
   clock/delay and inferred readable/controllable device capabilities.
+- Complete telemetry/error reference, security and upgrade guidance, plus
+  offline executable README and Markdown/link quality checks.
 
 ### Changed
 
@@ -55,4 +58,4 @@ publication is created here.
 - PSR-16 refresh leases cannot guarantee atomic exclusion.
 - The charging-limit policy is not a model-support guarantee. Cloud confirmation
   is not proof of physical output state.
-- No scheduling, LAN protocol, tagging or publication.
+- No scheduling or LAN protocol.

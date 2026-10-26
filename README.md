@@ -3,23 +3,36 @@
 **Unofficial. Not affiliated with, endorsed by, or supported by Oukitel,
 Wonderfree, Quectel or Acceleronix.**
 
-[![CI](https://github.com/ivanvasechko/oukitel-php-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/ivanvasechko/oukitel-php-sdk/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
+[![CI](https://github.com/ivanvasechko/oukitel-php-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/ivanvasechko/oukitel-php-sdk/actions/workflows/ci.yml)
+[![Coverage gate](https://img.shields.io/badge/coverage%20gate-90%25-brightgreen)](.github/workflows/ci.yml)
+[![Packagist](https://img.shields.io/packagist/v/ivanvasechko/oukitel-php-sdk)](https://packagist.org/packages/ivanvasechko/oukitel-php-sdk)
 
 Source-available SDK for personal and other permitted noncommercial uses under
 [PolyForm Noncommercial 1.0.0](LICENSE). This is not an OSI open-source licence.
 
 ## Status
 
-This branch extends the unreleased standalone core with opt-in refresh
-orchestration and experimental controls. It does not tag or publish a release;
-the examples below target the development API, not an earlier published scaffold.
+The v0.3.0 API provides cloud reads, session management, offline helpers and
+experimental controls. Before 1.0, APIs may change between minor releases;
+experimental controls may change in any release. Pin and review upgrades.
 PHP 8.2+ and Composer 2 are required. No framework is required.
+
+## Supported devices
+
+The parser includes P2001 / P2001-PLUS-TT-style TSL fields. This is a compatibility
+target, not certification or a guarantee for any unit or firmware. Other models
+using the Wonderfree app are expected to share parts of the API but are unverified.
+EU, US and CN region presets are bundled; automated checks use synthetic data,
+not live accounts.
+
+Report compatibility using a minimal synthetic reproduction. Do not attach
+account responses, device identifiers, telemetry captures or operator logs.
 
 ## Install and quick start
 
-When a release containing this API is available, install it with a supported
-HTTP implementation. Guzzle supplies both the PSR-18 client and PSR-17 factories:
+Install with a supported HTTP implementation. Guzzle supplies both the PSR-18
+client and PSR-17 factories:
 
 ```sh
 composer config allow-plugins.php-http/discovery false
@@ -30,6 +43,8 @@ Discovery works without enabling Composer plugin auto-installation. A dependency
 plugin policy does not configure your root application, so set it explicitly.
 
 ```php
+require 'vendor/autoload.php';
+
 use IvanVasechko\Oukitel\DTOs\Credentials;
 use IvanVasechko\Oukitel\Enums\Region;
 use IvanVasechko\Oukitel\OukitelClient;
@@ -46,6 +61,7 @@ $devices = $account->devices();
 if ($devices !== []) {
     $telemetry = $account->telemetry($devices[0]->id);
     $attributes = $account->rawAttributes($devices[0]->id);
+    $account->wake($devices[0]->id); // Optional explicit reporting request.
 }
 ```
 
@@ -56,15 +72,43 @@ in `extra`, normalized `rawTsl` entries and presence/timestamp `diagnostics`.
 Missing, null, false and zero are not interchangeable. A remaining-time value
 equal to 5940 becomes null; adjacent values are preserved.
 
-The core account API has one explicit high-frequency reporting wake request:
-
-```php
-$account->wake($devices[0]->id);
-```
-
-Only call it after selecting a device. General controls require a separate,
+Wake requests high-frequency reporting; it does not promise fresh data or a
+polling cadence. Call it only after selecting a device. General controls require a separate,
 explicit `controls()` call. Nothing starts polling or changes outputs
 automatically.
+
+### Telemetry fields
+
+Scalar fields are nullable: missing data stays `null`, not zero or false.
+Units describe normalized output, not electrical measurement guarantees.
+
+| Field | Type | Unit | Source TSL code | Notes |
+| --- | --- | --- | --- | --- |
+| `isOnline` | `?bool` | — | `deviceData` | `isOnline`, `onlineStatus` or `online` |
+| `wifiSignalDbm` | `?int` | dBm | `deviceData.signalStrength` | May be absent |
+| `batteryPercent` | `?int` | % | `battery_percentage` | Reported state of charge |
+| `remainingDischargeMinutes` | `?int` | min | `remain_time`, `remaining_time` | Exactly 5940 becomes `null` |
+| `remainingChargeMinutes` | `?int` | min | `remain_charging_time`, `remaining_charge_time` | Exactly 5940 becomes `null` |
+| `totalInputW` | `?int` | W | `total_input_power` | Reported aggregate |
+| `totalOutputW` | `?int` | W | `total_output_power` | Reported aggregate |
+| `acInputW` | `?int` | W | `ac_input` | Reported input |
+| `dcInputW` | `?int` | W | `dc_input` | Reported input |
+| `temperatureC` | `?float` | °C | `temp` | Reported temperature |
+| `inverterTemperatureC` | `?float` | °C | `inverter_temp` | May be absent |
+| `acChargingLimitPercent` | `?int` | % | `ac_charging_limit` | Read value; write policy is separate |
+| `acOutputEnabled` | `?bool` | — | `AC_Info`, `ac_data`, `ac_switch` | STRUCT key `1` / `ac_switch`, then scalar fallback |
+| `acOutputW` | `?int` | W | `AC_Info`, `ac_data`, `ac_output_power` | STRUCT key `2` / `ac1_output`, then scalar fallback |
+| `acOutputV` | `?float` | V | `AC_Info`, `ac_data`, `ac_output_voltage` | STRUCT key `3` / `ac1_output_voltage`, then scalar fallback |
+| `dcOutputW` | `?int` | W | `DC_Info`, `dc_data`, `dc_output_power` | STRUCT key `2` / `car1_output`, then scalar fallback |
+| `usbOutputW` | `?int` | W | `USB_Info`, `usb_data` | Sum of present `2` / `USB_QC1_output` and `3` / `USB_QC2_output` |
+| `typeCOutputW` | `?int` | W | `TypeC_Info`, `typec_data` | Sum of present keys `2`, `5`, `6`, `7` / `Typec1_output` through `Typec4_output` |
+| `extra` | `array<string, mixed>` | varies | Unmapped codes | Redacted, type-normalized values |
+| `rawTsl` | `list<array>` | varies | Present, non-null attributes | Redacted, normalized code/value/type entries |
+| `diagnostics` | `list<array>` | varies | All attributes | Presence, redacted raw value, type and `reportedAt` |
+
+The 5940-minute sentinel represents the 99-hour display cap, not a reliable
+duration estimate. STRUCT aliases are normalized without fabricating absent
+outlets. There is no UPS-mode inference or background freshness guarantee.
 
 ### Experimental controls
 
@@ -134,7 +178,7 @@ lists of known `TslCode` values and `canRead()` / `canControl()` helpers. Presen
 plus the allow-list is an inference, not a model guarantee or a safety interlock;
 unknown codes are omitted.
 
-### Configuration and reliability
+### Sessions, caching and reliability
 
 `create()` accepts named `httpClient`, `requestFactory`, `streamFactory`, `cache`,
 `logger`, `clock`, `options`, `regions` and `controlDelay` arguments. They use PSR-18, PSR-17,
@@ -175,6 +219,14 @@ with a safe warning; malformed cooldown entries fail closed.
 A rejected login raises `AuthenticationFailed`; later attempts during cooldown
 raise `LoginCoolingDown`. `verify()` bypasses both cached sessions and cooldown,
 without populating or clearing them. Setting the cooldown to zero disables it.
+
+To share sessions across workers, pass the same persistent PSR-16 cache through
+`OukitelClient::create(cache: $cache)`. Use the same cache backend and namespace
+for workers that should share an account session. Configure separate namespaces
+in your cache adapter for isolated applications; the client has no namespace
+option. A process-local cache does not share sessions across
+workers. Protect the backend with access controls and encryption appropriate to
+your deployment; cached tokens grant account access.
 
 EU, US and CN presets contain public app-level constants, not account
 credentials. Regional availability and continued validity are not guaranteed. Override any field
@@ -223,11 +275,45 @@ Implement the separate experimental `ControlCloud` only if device writes are
 supported; read-only clouds otherwise keep working, and attempted controls raise
 `ControlsUnavailable`. Never cache credentials or passwords.
 
-All SDK exceptions extend `OukitelException`. HTTP failure codes and vendor
+### Errors
+
+All SDK exceptions directly extend `OukitelException`, which extends
+`RuntimeException`. Catch the base class for application error reporting, but
+handle ambiguous control outcomes without automatic replay.
+
+| Exception | When thrown |
+| --- | --- |
+| `AuthenticationFailed` | Login or refresh authentication is explicitly rejected |
+| `SessionExpired` | Vendor code 5032; reads may reauthenticate once, controls never replay |
+| `LoginCoolingDown` | Cached failed-login cooldown blocks another login |
+| `RefreshUnavailable` | Refresh requested from an unsupported cloud transport |
+| `RefreshInProgress` | Another worker holds the best-effort lease without a fresh reusable session |
+| `ControlsUnavailable` | Cloud transport does not implement `ControlCloud` |
+| `ConfigurationMissing` | Required regional configuration is absent or invalid |
+| `TransportConfigurationFailed` | HTTP discovery or automatic deadline configuration fails |
+| `TransportFailed` | HTTP/network operation fails |
+| `MalformedResponse` | Response JSON, required fields or typed values are invalid |
+| `ApiError` | Other non-success vendor response code |
+| `CacheFailed` | Cache operation fails or security-sensitive cache state is malformed |
+
+Invalid control arguments and polling limits raise `InvalidArgumentException`
+before requests are sent. An unconfigured fake raises `LogicException`.
+HTTP failure codes and vendor
 body codes are handled separately. Sensitive DTO debug/JSON fields and telemetry
 attributes are redacted; transport exception chains and raw responses are not
 attached to SDK errors. Do not log credentials, cache payloads, device names or
 raw HTTP exceptions, or paste them into issues.
+
+### Security
+
+Credentials remain in the account object in memory; never serialize it into
+jobs, logs or shared caches. Sessions hold access and refresh tokens in memory
+and, when configured, PSR-16 cache until the documented expiry.
+Sensitive DTO `__debugInfo()` and JSON representations redact credentials,
+tokens and identifiers. Redaction is not encryption and cannot protect arbitrary
+application logs, reflection or manually accessed public properties.
+Never log credentials, tokens, cache entries or raw HTTP bodies. Report
+vulnerabilities through [SECURITY.md](SECURITY.md), not public issues.
 
 ### Offline testing
 
@@ -267,7 +353,10 @@ fixtures configure both telemetry and raw attributes; a manually supplied
 
 The SDK targets a reverse-engineered API with no SLA, which may change or
 stop working without notice. Access may be subject to vendor terms or other legal
-restrictions. Users must obtain any necessary authorization and comply with
+restrictions and may breach those terms; use is at your own risk.
+Use is limited to purposes permitted by PolyForm Noncommercial 1.0.0, including
+personal non-commercial use; no commercial licence is granted.
+Users must obtain any necessary authorization and comply with
 applicable law and terms. No disclaimer guarantees permission or eliminates risk.
 
 All trademarks belong to their respective owners. No ownership of, or permission
@@ -312,11 +401,30 @@ dependencies and scans secrets. Isolated archive-installed consumers check Guzzl
 on PHP 8.2/8.5 and Symfony on PHP 8.5 without root development dependencies.
 All automated tests are offline; passing CI does not verify live region presets.
 
+Documentation checks require Node.js 22+:
+
+```sh
+npm ci
+npm run docs:check
+composer docs
+```
+
+The docs job lints every PHP block and runs the quick start with an injected
+HTTP mock, never a live account. Markdown lint and link checks cover repository
+guidance. Documentation and development tooling are excluded from SDK archives.
+
+## Laravel
+
+Use the separate [Laravel adapter](https://github.com/ivanvasechko/oukitel-laravel-sdk)
+for framework integration. This package remains framework-independent; check the
+adapter's version constraints before upgrading.
+
 ## Releases
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). There are no placeholder releases.
-Packagist registration exists; publishing a tagged core release is a separate
-maintainer action.
+See [CHANGELOG.md](CHANGELOG.md) for release notes,
+[upgrading guidance](docs/UPGRADING.md) for compatibility changes and
+[CONTRIBUTING.md](CONTRIBUTING.md) for the signed-tag procedure.
+Packagist indexes pushed tags independently of GitHub Release creation.
 
 ## Licence
 
