@@ -423,8 +423,10 @@ adapter's version constraints before upgrading.
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes,
 [upgrading guidance](docs/UPGRADING.md) for compatibility changes and
-[CONTRIBUTING.md](CONTRIBUTING.md) for the signed-tag procedure.
+[CONTRIBUTING.md](CONTRIBUTING.md) for the GitHub UI release procedure.
 Packagist indexes pushed tags independently of GitHub Release creation.
+Release validation is read-only; GPG signing is optional. Publish only after
+the exact release commit passes CI on `main`, and never move published tags.
 
 ## Licence
 
